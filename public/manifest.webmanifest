@@ -1,0 +1,20 @@
+{
+  "name": "Kantong Internship",
+  "short_name": "Kantong",
+  "description": "Catat, pantau, dan laporkan kas internship dengan lebih rapi.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

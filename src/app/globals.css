@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================================================
+   Kantong Internship — design tokens. Warm off-white canvas, deep burgundy→red
+   accent, soft warm elevation. A private finance app, not a banking dashboard.
+   =========================================================================== */
+:root {
+  --brand-600: #c42b2b;
+  --brand-700: #9f1f2b;
+  --brand-800: #7e1d2b;
+  --brand-100: #fde3e3;
+  --brand-50: #fef2f2;
+  --ink: #1c1917;
+  --ink-muted: #78716c;
+  --line: #ebe7e2;
+  --surface: #ffffff;
+  --canvas: #f7f5f2;
+  --positive: #15803d;
+  --warning: #b45309;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-canvas text-ink antialiased;
+    /* subtle warm grain so large screens never feel like flat empty white */
+    background-image:
+      radial-gradient(60% 50% at 100% 0%, rgba(196, 43, 43, 0.04) 0%, rgba(196, 43, 43, 0) 60%),
+      radial-gradient(50% 50% at 0% 100%, rgba(126, 29, 43, 0.035) 0%, rgba(126, 29, 43, 0) 55%);
+    background-attachment: fixed;
+    font-feature-settings: "cv02", "cv03", "cv04";
+  }
+  /* Tabular figures for all financial numbers. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading), system-ui, sans-serif;
+    letter-spacing: -0.018em;
+  }
+  ::selection {
+    background: var(--brand-100);
+    color: var(--brand-800);
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-3xl border border-line bg-surface shadow-card;
+  }
+  /* interactive surface: lifts on hover, subtle accent border */
+  .card-interactive {
+    @apply card transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover;
+  }
+  .input-base {
+    @apply w-full rounded-2xl border border-line bg-white px-4 py-3 text-[15px] text-ink
+      outline-none transition focus:border-brand-400 focus:ring-4 focus:ring-brand-100
+      placeholder:text-ink-muted/55;
+    min-height: 48px;
+  }
+  .label-base {
+    @apply mb-1.5 block text-sm font-semibold text-ink;
+  }
+  /* 44px+ touch targets. */
+  .tap {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* tooltip shown beside collapsed sidebar items */
+  .nav-tip {
+    @apply pointer-events-none absolute left-[calc(100%+12px)] top-1/2 z-50 -translate-y-1/2 whitespace-nowrap
+      rounded-xl bg-ink px-2.5 py-1.5 text-xs font-semibold text-white opacity-0 shadow-card
+      transition-opacity duration-150;
+  }
+}
+
+/* Branded full-page loader bar */
+.loader-bar {
+  background: linear-gradient(90deg, transparent, var(--brand-600), transparent);
+}
+
+/* Skeleton shimmer (warm) */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #efeae4;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.75), transparent);
+  animation: shimmer 1.6s infinite;
+}
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Hide scrollbars on horizontal scrollers but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Respect reduced motion globally (spec §9). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
