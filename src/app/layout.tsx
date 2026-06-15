@@ -15,6 +15,10 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Kantong Internship",
   },
+  // Modern replacement for the deprecated apple-mobile-web-app-capable meta.
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/icon.svg" }],

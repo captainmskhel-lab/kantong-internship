@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft, Wallet } from "lucide-react";
@@ -19,22 +19,53 @@ export default function TreasurerLoginPage() {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Ref guard so the click handler + form submit can't fire two requests.
+  const submittingRef = useRef(false);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    const res = await apiFetch("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ username, password, remember }),
-    });
-    setLoading(false);
-    if (!res.ok) {
-      setError(res.error ?? "Username atau password belum cocok.");
+  // Single login routine, driven by BOTH the button onClick (reliable) and the
+  // form onSubmit (Enter key). The ref guard dedupes them into one request.
+  async function doLogin() {
+    // TEMP debug logs (remove after confirming login works) — never log the password.
+    console.log("admin submit clicked");
+    if (submittingRef.current || loading) return;
+
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername || !password) {
+      console.log("admin form invalid");
+      setError("Username dan password wajib diisi.");
       return;
     }
-    router.replace("/admin");
-    router.refresh();
+    console.log("admin form valid");
+
+    submittingRef.current = true;
+    setError(null);
+    setLoading(true);
+    console.log("admin login request started");
+    try {
+      const res = await apiFetch<{ username: string }>("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ username: trimmedUsername, password, remember }),
+      });
+      console.log("admin login response status", res.status);
+      if (!res.ok) {
+        setError(res.error ?? "Username atau password belum cocok.");
+        submittingRef.current = false;
+        setLoading(false);
+        return;
+      }
+      // Success — navigate away (component unmounts; keep loading state as-is).
+      router.replace("/admin");
+      router.refresh();
+    } catch {
+      setError("Tidak bisa terhubung ke server. Coba lagi.");
+      submittingRef.current = false;
+      setLoading(false);
+    }
+  }
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    void doLogin();
   }
 
   return (
@@ -66,7 +97,6 @@ export default function TreasurerLoginPage() {
                   placeholder="bendahara"
                   autoComplete="username"
                   autoFocus
-                  required
                 />
               </Field>
 
@@ -79,7 +109,6 @@ export default function TreasurerLoginPage() {
                     placeholder="••••••••"
                     autoComplete="current-password"
                     className="pr-12"
-                    required
                   />
                   <button
                     type="button"
@@ -108,7 +137,7 @@ export default function TreasurerLoginPage() {
                 </div>
               )}
 
-              <Button type="submit" fullWidth size="lg" loading={loading}>
+              <Button type="submit" onClick={() => void doLogin()} fullWidth size="lg" loading={loading}>
                 <Wallet className="h-4 w-4" /> Masuk sebagai Bendahara
               </Button>
             </form>
